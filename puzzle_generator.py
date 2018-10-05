@@ -14,20 +14,24 @@ class PuzzleGenerator():
           # used set to make sure the words are unique
           return list(set(list(wn.words())))[:n]
  
-      def get_hyponyms(self, word):
+      def get_hyponyms(self, word, depth=1):
           '''
              Method takes a given word and returns 
              the hyponyms of all the senses of that word.
           '''
+          # if we have reached the depth we want stop
+          if depth == 0:
+             return set()
           # create empty list to store hyponyms
-          hyponyms = []
+          hyponyms = set()
           # get the hyponym for each sense of the given word
           for sense in wn.synsets(word):
-              # get the words instead of the senses
-              words = [word.name() for word in sense.lemmas()]
-              # add words to list of hyponyms
-              hyponyms.extend(words)
-          # return list of hyponyms
+              # get the hyponyms of the current sense
+              for h in sense.hyponyms():
+                  hyponyms.add(h)
+                  # get the hyponyms on the next depth level
+                  for z in get_hyponyms(word, depth -1):
+                      hyponyms.add(z)
           return hyponyms
 
       def generate_hyponyms(self):
