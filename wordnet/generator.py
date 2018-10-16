@@ -9,6 +9,16 @@
 # import wordnet
 from nltk.corpus import wordnet as wn
 
+class Specificity:
+    def __init__(self):
+        self.cache = dict()
+        
+    def evaluate(self, sense):
+        if sense.name() not in self.cache:
+            spec = len(get_all_hyponyms_from_sense(sense))
+            self.cache[sense.name()] = spec
+        return self.cache[sense.name()]
+
 
 class PuzzleGenerator():
       def __init__(self):
