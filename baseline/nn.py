@@ -1,3 +1,9 @@
+# how will you represent your vocabulary
+# 
+# the string of all letters of length n?
+#
+# how to convert that to vector form since this won't be accepted by the neural network
+#
 # Import dependencies
 import torch
 from torch.autograd import Variable
