@@ -116,6 +116,19 @@ class PuzzleGenerator():
           # return the filtered mapping
           return filtered_mapping
      
+      def get_least_common_anscestor(self, words):
+          hypernyms = get_hypernyms(words[0])
+          for word in words[1:]:
+              hypernyms = hypernyms & get_hypernyms(word)
+          if len(commonHypernyms) == 0:
+             hyp = wn.synset('entity.n.01')
+             return (specificity.evaluate(hyp), hyp)
+          scoredHypernyms = [(specificity.evaluate(hyp), hyp) for hyp in hypernyms]
+          sortedHypernyms = sorted(scoredHypernyms)
+          return sortedHypernyms[0]
+
+
+     
       def generate(self):
           puzzles = self.generate_hyponyms()
           for the least common anscestor of similar words:

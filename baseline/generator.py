@@ -1,4 +1,3 @@
- 
 # Randommly generate puzzles using letters from the english alphabet
 # We will have 5 strings where 4 strings will not contain a letter
 # in some other string. The other string will be out odd man out.
@@ -69,11 +68,12 @@ def save_puzzles(puzzles):
     f.close()
 
 def run():
+    length = 5
     alphabet = get_alphabet()
-    not_containing = generate_not_containing(alphabet)
-    containing = generate_containing(alphabet, not_containing)
+    not_containing = generate_not_containing(alphabet, length)
+    containing = generate_containing(alphabet, not_containing, length)
     puzzles = generate_puzzles(containing, not_containing)
-    print(len(puzzles))
+    print("%d puzzles generated!" % len(puzzles))
     save_puzzles(puzzles)
      
 run()
