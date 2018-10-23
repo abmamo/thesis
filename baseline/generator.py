@@ -73,9 +73,8 @@ def run():
     not_containing = generate_not_containing(alphabet, length)
     containing = generate_containing(alphabet, not_containing, length)
     puzzles = generate_puzzles(containing, not_containing)
-    converted_puzzles = convert_to_int(puzzles)
-    print("%d puzzles generated!" % len(converted_puzzles))
-    save_puzzles(converted_puzzles)
+    print("%d puzzles generated!" % len(puzzles))
+    save_puzzles(puzzles)
      
 run()
 
