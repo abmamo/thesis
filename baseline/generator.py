@@ -10,7 +10,7 @@ def get_alphabet():
     '''
        Function to generate an alphabet. In this case the English alphabet
     '''
-    alphabet = 'abcdefghijklmnopqrstuvwxyz'
+    alphabet = '0123456789'
     return list(alphabet)
 
 def generate_not_containing(alphabet, length = 5):
@@ -68,13 +68,14 @@ def save_puzzles(puzzles):
     f.close()
 
 def run():
-    length = 5
+    length = 2
     alphabet = get_alphabet()
     not_containing = generate_not_containing(alphabet, length)
     containing = generate_containing(alphabet, not_containing, length)
     puzzles = generate_puzzles(containing, not_containing)
-    print("%d puzzles generated!" % len(puzzles))
-    save_puzzles(puzzles)
+    converted_puzzles = convert_to_int(puzzles)
+    print("%d puzzles generated!" % len(converted_puzzles))
+    save_puzzles(converted_puzzles)
      
 run()
 
