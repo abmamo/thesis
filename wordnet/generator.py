@@ -109,8 +109,11 @@ def get_odd(root, depth = 3):
     hyponyms = get_hyponyms(odd_root, depth = 3)
     # check if a hyponym is a leaf
     leaves = [x for x in hyponyms if is_leaf(x.lemmas()[0].name())]
-    # randomly select a leaf
-    return random.choice(leaves)
+    try:
+       # randomly select a leaf
+       return random.choice(leaves)
+    except:
+       return ""
     
 def generate_puzzle(root):
     ''' given a root word get 4 random hyponyms and a hypernym connected to it through a common anscetor'''
@@ -123,9 +126,9 @@ def generate_puzzle(root):
 #print(hypernyms)
 #hyponyms = get_hyponyms('dog', depth = 3)
 #print(hyponyms)
-sim = get_similar('dog')
-print(sim)
+#sim = get_similar('dog')
+#print(sim)
 #odd = get_odd('dog')
 #print(odd)
-#puzzles = generate_puzzle('dog')
+#puzzles = generate_puzzle('cat')
 #print(puzzles)
