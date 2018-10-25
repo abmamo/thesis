@@ -1,144 +1,131 @@
-# when getting list of words from wordnet add a function that returns words with similar specificity
-
-# generate hypernyms function
-
-# for 4 hyponym words go one step above and to the the left or to the right and get one different word
-# save as a pickle file
-
-
-# import wordnet
+import random
 from nltk.corpus import wordnet as wn
 
-class Specificity:
-    def __init__(self):
-        self.cache = dict()
-        
-    def evaluate(self, sense):
-        if sense.name() not in self.cache:
-            spec = len(get_all_hyponyms_from_sense(sense))
-            self.cache[sense.name()] = spec
-        return self.cache[sense.name()]
+def get_hypernyms(word, depth = None):
+    '''
+       Method that takes a given word and returns
+       the hypernyms of all that word.
+
+       If a depth parameter is passed it gets hypernyms
+       up to that depth.
+    '''
+    if depth == None:
+       # if we have reached the depth we want or 
+       # if we have reached a leaf stop
+       if wn.synsets(word)[0].hypernyms() == []:
+          # return accumulated list
+          return []
+       # create empty list to store hypernyms
+       hypernyms = []
+       # otherwise recursively add hypernyms
+       for sense in wn.synsets(word):
+           # get the hypernyms of current sense
+           for h in sense.hypernyms():
+               hypernyms.append(h)
+               for z in get_hypernyms(word):
+                   hypernyms.append(z)
+       return hypernyms
+    else:
+       if depth == 0:
+          return []
+       # create empty list to store hypernyms
+       hypernyms = []
+       # get the hypernyms for each sense of the given word
+       for sense in wn.synsets(word):
+           # get the hypernyms of teh current sense
+           for h in sense.hypernyms():
+               hypernyms.append(h)
+               for z in get_hypernyms(word, depth - 1):
+                   hypernyms.append(z)
+       return hypernyms
+
+def get_hyponyms(word, depth = None):
+    '''
+       Method that takes a given word and returns
+       the hyponyms of all that word.
+
+       If a depth parameter is passed it gets hypernyms
+       up to that depth.
+    '''
+    if depth == None:
+       # if we have reached the depth we want or 
+       # if we have reached a leaf stop
+       if wn.synsets(word)[0].hyponyms() == []:
+          # return accumulated list
+          return []
+       # create empty list to store hypernyms
+       hyponyms = []
+       # otherwise recursively add hypernyms
+       for sense in wn.synsets(word):
+           # get the hypernyms of current sense
+           for h in sense.hyponyms():
+               hyponyms.append(h)
+               for z in get_hyponyms(word):
+                   hyponyms.append(z)
+       return hyponyms
+    else:
+       if depth == 0:
+          return []
+       # create empty list to store hypernyms
+       hyponyms = []
+       # get the hypernyms for each sense of the given word
+       for sense in wn.synsets(word):
+           # get the hypernyms of teh current sense
+           for h in sense.hyponyms():
+               hyponyms.append(h)
+               for z in get_hyponyms(word, depth - 1):
+                   hyponyms.append(z)
+       return hyponyms
+
+def get_similar(root, depth = 3):
+    '''
+       given a root word return four random hyponyms
+       of the root word
+
+       depth is artibrarily set
+    '''
+    # get hyponyms
+    hyponyms = get_hyponyms(root, depth = depth)
+    # randomly select 4 words from the list 
+    return random.sample(hyponyms, 4)
+
+def is_leaf(word, depth = 1):
+    '''
+       function that checks to see if a given word is 
+       a leaf in wordnet
+    '''
+    return get_hyponyms(word, depth = depth) == []
+
+def get_odd(root, depth = 3):
+    '''
+       given a root word go up a given number of steps
+       and generate a word with a similar ancestor
+    '''
+    # get hypernym of the root word
+    hypernyms = get_hypernyms(root, depth = depth)
+    # randomly select hypernym
+    odd_root = random.choice(hypernyms).lemmas()[0].name()
+    # find hyponyms of the root word
+    hyponyms = get_hyponyms(odd_root, depth = 3)
+    # check if a hyponym is a leaf
+    leaves = [x for x in hyponyms if is_leaf(x.lemmas()[0].name())]
+    # randomly select a leaf
+    return random.choice(leaves)
+    
+def generate_puzzle(root):
+    ''' given a root word get 4 random hyponyms and a hypernym connected to it through a common anscetor'''
+    similar = get_similar(root)
+    odd = get_odd(root)
+    return {"similar" : similar, "odd" : odd}
 
 
-class PuzzleGenerator():
-      def __init__(self):
-          self.puzzles = {}
-
-      def get_words(self, n = 500):
-          '''
-             Method to get all the words from wordnet
-             and return them as a list
-          '''
-          # used set to make sure the words are unique
-          return list(set(list(wn.words())))[:n]
-      
-      def get_hypernyms(self, word, depth=1):
-          '''
-             Method takes a given word and returns
-             the hypernyms of all the senses of that word
-          '''
-          # if we have reached the depth we want stop
-          if depth == 0:
-             return set()
-          # create empty list to store hypernyms
-          hypoernyms = set()
-          # get the hypernyms for each sense of the given word
-          for sense in wn.synsets(word):
-              # get the hypernyms of teh current sense
-              for h in sense.hypernyms():
-                  hyperms.add(h)
-                  for z in get_hypoernyms(word, depth - 1):
-                      hypernyms.add(z)
-          return hypernyms
-
-      def generate_hypernyms(self):
-          '''
-             Method gets a list of words from wordnet and
-             returns a mapping of each word and its hyponyms
-          '''
-          # define dictionary to store mapping
-          mapping = {}
-          # get all teh words from wordnet
-          words = self.get_words()
-          # for each word get its hyponyms
-          for word in words:
-              mapping[word] = self.get_hypernyms(word)
-          # return word : hyponyms pairs
-          return mapping 
- 
-      def get_hyponyms(self, word, depth=1):
-          '''
-             Method takes a given word and returns 
-             the hyponyms of all the senses of that word.
-          '''
-          # if we have reached the depth we want stop
-          if depth == 0:
-             return set()
-          # create empty list to store hyponyms
-          hyponyms = set()
-          # get the hyponym for each sense of the given word
-          for sense in wn.synsets(word):
-              # get the hyponyms of the current sense
-              for h in sense.hyponyms():
-                  hyponyms.add(h)
-                  # get the hyponyms on the next depth level
-                  for z in get_hyponyms(word, depth -1):
-                      hyponyms.add(z)
-          return hyponyms
-
-      def generate_hyponyms(self):
-          '''
-             Method gets a list of words from wordnet and
-             returns a mapping of each word and its hyponyms
-          '''
-          # define dictionary to store mapping
-          mapping = {}
-          # get all teh words from wordnet
-          words = self.get_words()
-          # for each word get its hyponyms
-          for word in words:
-              mapping[word] = self.get_hyponyms(word)
-          # return word : hyponyms pairs
-          return mapping
-
-      def filter_puzzles(self, mapping):
-          '''
-             Method takes a dictionary containing key value
-             pairs of words and hyponyms and returns pairs
-             that have 4 or more hyponyms.
-          '''
-          # define a dictionary to store pairs that satisfy our condition
-          filtered_mapping = {}
-          # iterate through our mapping to see if it satisfies the condition
-          for key, value in mapping:
-              if len(value) >= 4:
-                 filtered_mapping[key] = value
-          # return the filtered mapping
-          return filtered_mapping
-     
-      def get_least_common_anscestor(self, words):
-          hypernyms = get_hypernyms(words[0])
-          for word in words[1:]:
-              hypernyms = hypernyms & get_hypernyms(word)
-          if len(commonHypernyms) == 0:
-             hyp = wn.synset('entity.n.01')
-             return (specificity.evaluate(hyp), hyp)
-          scoredHypernyms = [(specificity.evaluate(hyp), hyp) for hyp in hypernyms]
-          sortedHypernyms = sorted(scoredHypernyms)
-          return sortedHypernyms[0]
-
-
-     
-      def generate(self):
-          puzzles = self.generate_hyponyms()
-          for the least common anscestor of similar words:
-              get hyponym of that word:
-                  get hypernym of that word:
-                      use that as the odd word
-
-puzzle_generator = PuzzleGenerator()
-puzzles = puzzle_generator.generate_hyponyms()
-for puzzle in puzzles:
-    print(puzzle)
-    print(puzzles[puzzle])
-    print()
+#hypernyms = get_hypernyms('dog', depth = 3)
+#print(hypernyms)
+#hyponyms = get_hyponyms('dog', depth = 3)
+#print(hyponyms)
+sim = get_similar('dog')
+print(sim)
+#odd = get_odd('dog')
+#print(odd)
+#puzzles = generate_puzzle('dog')
+#print(puzzles)
