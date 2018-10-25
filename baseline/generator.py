@@ -57,6 +57,28 @@ def generate_puzzles(containing, not_containing):
             puzzles.append({"odd" : random.sample(not_containing[letter], 1), "similar": random.sample(containing[letter], 4)})
     return puzzles
 
+def generate_training_data(puzzles):
+    '''
+       Function that takes the puzzles we generated above and creates
+       a list of dictionaries with input and outputs
+    '''
+    combined = []
+    for puzzle in puzzles:
+        temp = []
+        temp.append(puzzle["odd"][0])
+        temp.extend(puzzle["similar"])
+        combined.append(temp)
+    data = []
+    for c in combined:
+        # the index of the odd word out is going to be the first entry always
+        ind = [1, 0, 0, 0, 0]
+        combined = list(zip(c, ind))
+        random.shuffle(combined) 
+        c[:], ind[:] = zip(*combined)
+        data.append({"input" : c, "output" : ind})
+
+    return data
+
 def save_puzzles(puzzles):
     '''
        Dumps our dictionary to a pickle file
@@ -74,7 +96,7 @@ def run():
     containing = generate_containing(alphabet, not_containing, length)
     puzzles = generate_puzzles(containing, not_containing)
     print("%d puzzles generated!" % len(puzzles))
-    save_puzzles(puzzles)
-     
+    data = generate_training_data(puzzles)
+    save_puzzles(data)
 run()
 
