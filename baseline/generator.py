@@ -93,6 +93,7 @@ def run():
     length = 2
     alphabet = get_alphabet()
     not_containing = generate_not_containing(alphabet, length)
+    print(not_containing)
     containing = generate_containing(alphabet, not_containing, length)
     puzzles = generate_puzzles(containing, not_containing)
     print("%d puzzles generated!" % len(puzzles))

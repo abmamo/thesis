@@ -5,19 +5,23 @@
 # read puzzles from pickle file
 import torch
 import pickle
+import itertools
 # figure out a way to use pytorch tensors
 import numpy as np
 
 
 all_letters = '0123456789'
+# generateall two letter combinations of the digits above
+all_digits = list(itertools.product(all_letters, repeat = 2))
+all_digits = [x[0] + x[1] for x in all_digits]
 data = pickle.load( open( "puzzles.pkl", "rb" ) )
 
-def letter_to_index(letter):
+def line_to_index(line):
     '''
        Function that takes a letter and returns its index in our alphabet
     '''
-    # return the index of the letter in our alphabet
-    return all_letters.find(letter)
+    # return the index of the number in our alphabet
+    return all_digits.index(line)
 
 
 def line_to_tensor(line):
@@ -26,11 +30,9 @@ def line_to_tensor(line):
        each row is a one hot vector representation fo the ith character
     '''
     # create a 1x10 zero tensor
-    tensor = np.zeros((1, len(all_letters)))
-    for letter in line:
-        # for the ith and jth indices, where i and j are the digits of our
-        # 2 digit number set the value to 1
-        tensor[0][letter_to_index(letter)] = 1
+    tensor = np.zeros((1, len(all_digits)))
+    # Set the ith entry to be 1
+    tensor[0][line_to_index(line)] = 1
     return tensor
 
 def vectorize_data(data):
@@ -46,6 +48,21 @@ def vectorize_data(data):
         vectorized_data.append(v_d)
     return np.array(vectorized_data)
 
+def split_puzzles(puzzles):
+    '''
+       Function to turn our list of dictionary puzzles into two numpy arrays
+       for input and output
+    '''
+    # create empty lists to store inputs and outputs separately
+    inputs, output = [], []
+    for d in puzzles:
+        # iterate and append to our lists
+        inputs.append(d["input"])
+        output.append(d["output"])
+    # return a dict of two numpy arrays
+    return {"inputs" : np.array(inputs), "output": np.array(output)}
+      
+
 def save_puzzles(puzzles):
     '''
        Dumps our dictionary to a pickle file
@@ -56,9 +73,13 @@ def save_puzzles(puzzles):
     pickle.dump(puzzles,f)
     f.close()
 
+   
+
 def run():
     v = vectorize_data(data)
-    save_puzzles(v)
+    dataset = split_puzzles(v)
+    print(dataset["inputs"].shape)
+    save_puzzles(dataset)
 
 run()
 

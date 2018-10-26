@@ -1,3 +1,5 @@
+#where does the softmax get added
+# how to input the elements
 import torch
 import numpy as np
 
@@ -5,25 +7,19 @@ import pickle
 # get puzzles from pickle file
 data = pickle.load( open( "vectorized_puzzles.pkl", "rb" ) )
 
-N, D_in, H, D_out = 90, 10, 10, 1
-
-
-inputs = []
-output = []
-for d in data:
-    inputs.append(d["input"])
-    output.append(d["output"])
+N, D_in, H, D_out = 90, [5, 1, 90], 5, 1
 
 # convert to pytorch tensors
-inputs = torch.from_numpy(np.array(inputs))
-output = torch.from_numpy(np.array(output))
+inputs = torch.from_numpy(np.array(data["inputs"]))
+output = torch.from_numpy(np.array(data["output"]))
 
 
-x = inputs.double()
-y = output.double()
+x = inputs
+y = output
 
 
 # Use the nn package to define our model and loss function.
+# create the layers of the neural network
 model = torch.nn.Sequential(
     torch.nn.Linear(D_in, H),
     torch.nn.ReLU(),
@@ -31,8 +27,8 @@ model = torch.nn.Sequential(
 )
 
 model = model.double()
-
-loss_fn = torch.nn.MSELoss(reduction='sum')
+# assuming this is a multi class classification problem
+loss_fn = torch.nn.CrossEntropyLoss()
 
 # Use the optim package to define an Optimizer that will update the weights of
 # the model for us. Here we will use Adam; the optim package contains many other
@@ -43,6 +39,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 for t in range(500):
     # Forward pass: compute predicted y by passing x to the model.
     y_pred = model(x)
+
+    # pass it through a softmax here or add a layer
 
     # Compute and print loss.
     loss = loss_fn(y_pred, y)
