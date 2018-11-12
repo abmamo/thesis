@@ -7,16 +7,19 @@ import pickle
 # get puzzles from pickle file
 data = pickle.load( open( "vectorized_puzzles.pkl", "rb" ) )
 
-N, D_in, H, D_out = 90, [5, 1, 90], 5, 1
+N, D_in, H, D_out = 90, 5, 100, 5
 
 # convert to pytorch tensors
 inputs = torch.from_numpy(np.array(data["inputs"]))
 output = torch.from_numpy(np.array(data["output"]))
 
-
+print(data['inputs'][0])
+print(data['output'][0])
 x = inputs
 y = output
 
+print(x.size())
+print(y.size())
 
 # Use the nn package to define our model and loss function.
 # create the layers of the neural network
@@ -24,6 +27,7 @@ model = torch.nn.Sequential(
     torch.nn.Linear(D_in, H),
     torch.nn.ReLU(),
     torch.nn.Linear(H, D_out),
+    # add softmax here
 )
 
 model = model.double()

@@ -16,51 +16,36 @@ all_digits = list(itertools.product(all_letters, repeat = 2))
 all_digits = [x[0] + x[1] for x in all_digits]
 data = pickle.load( open( "puzzles.pkl", "rb" ) )
 
-def line_to_index(line):
-    '''
-       Function that takes a letter and returns its index in our alphabet
-    '''
-    # return the index of the number in our alphabet
-    return all_digits.index(line)
-
-
 def line_to_tensor(line):
     '''
        Function to convert an entire string into an n dimensional array where
        each row is a one hot vector representation fo the ith character
     '''
     # create a 1x10 zero tensor
-    tensor = np.zeros((1, len(all_digits)))
+    tensor = [0] * len(all_digits)
     # Set the ith entry to be 1
-    tensor[0][line_to_index(line)] = 1
+    tensor[0][line] = 1
     return tensor
+
+def get_inputs(data):
+    ''' 
+       GEt a list of lists that is our input
+    '''
+    inputs, output = [], []
+    for d in data:
+        inputs.append(d["input"])
+        output.append(d["output"])
+    return inputs, output
 
 def vectorize_data(data):
     '''
-       Vectorize generated data
+       vectorize inputs
     '''
-    vectorized_data = []
-    # for each puzzle generated
-    for d in data:
-        # convert everything to vectors
-        v_d = {"input" : np.array([line_to_tensor(x) for x in d["input"]]), "output" : np.array(d['output'])}
-        # append to new puzzle list
-        vectorized_data.append(v_d)
-    return np.array(vectorized_data)
-
-def split_puzzles(puzzles):
-    '''
-       Function to turn our list of dictionary puzzles into two numpy arrays
-       for input and output
-    '''
-    # create empty lists to store inputs and outputs separately
-    inputs, output = [], []
-    for d in puzzles:
-        # iterate and append to our lists
-        inputs.append(d["input"])
-        output.append(d["output"])
-    # return a dict of two numpy arrays
-    return {"inputs" : np.array(inputs), "output": np.array(output)}
+    
+    inputs, output = get_inputs(data)
+    v_inputs = torch.Tensor(inputs)
+    v_output = torch.Tensor(output)
+    return v_inputs, v_output
       
 
 def save_puzzles(puzzles):
@@ -76,10 +61,8 @@ def save_puzzles(puzzles):
    
 
 def run():
-    v = vectorize_data(data)
-    dataset = split_puzzles(v)
-    print(dataset["inputs"].shape)
+    i, o = vectorize_data(data)
+    dataset = {"inputs" : i, "output" : o}
     save_puzzles(dataset)
 
 run()
-

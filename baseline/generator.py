@@ -54,7 +54,7 @@ def generate_puzzles(containing, not_containing):
         # for every string containing letter
         for string in containing[letter]:
             # get 4 random strings containing string and 1 string not containing letter
-            puzzles.append({"odd" : random.sample(not_containing[letter], 1), "similar": random.sample(containing[letter], 4)})
+            puzzles.append({"odd" : [int(x) for x in random.sample(not_containing[letter], 1)], "similar": [int(x) for x in random.sample(containing[letter], 4)]})
     return puzzles
 
 def generate_training_data(puzzles):
@@ -93,7 +93,6 @@ def run():
     length = 2
     alphabet = get_alphabet()
     not_containing = generate_not_containing(alphabet, length)
-    print(not_containing)
     containing = generate_containing(alphabet, not_containing, length)
     puzzles = generate_puzzles(containing, not_containing)
     print("%d puzzles generated!" % len(puzzles))
