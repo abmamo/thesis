@@ -1,68 +1,28 @@
-# transfrom bassline puzzles into tensors. Each letter is 
-# described by a one hot vector. Strings are then a 
-# combination of these one hot vectors stacked up. 
-
-# read puzzles from pickle file
 import torch
-import pickle
-import itertools
-# figure out a way to use pytorch tensors
-import numpy as np
+
+torch.manual_seed(1)
 
 
-all_letters = '0123456789'
-# generateall two letter combinations of the digits above
-all_digits = list(itertools.product(all_letters, repeat = 2))
-all_digits = [x[0] + x[1] for x in all_digits]
-data = pickle.load( open( "puzzles.pkl", "rb" ) )
+def oneHot(word, vocab):
+    vec = [0]*len(vocab)
+    vec[vocab[word]] = 1
+    return vec
 
-def line_to_tensor(line):
-    '''
-       Function to convert an entire string into an n dimensional array where
-       each row is a one hot vector representation fo the ith character
-    '''
-    # create a 1x10 zero tensor
-    tensor = [0] * len(all_digits)
-    # Set the ith entry to be 1
-    tensor[0][line] = 1
-    return tensor
+def makePuzzleVector(puzzle, vocab):
+    (num1, num2, num3), _ = puzzle
+    oneHot1 = oneHot(str(num1), vocab)
+    oneHot2 = oneHot(str(num2), vocab)
+    oneHot3 = oneHot(str(num3), vocab)
+    return torch.FloatTensor(oneHot1 + oneHot2 + oneHot3).view(1, -1)
 
-def get_inputs(data):
-    ''' 
-       GEt a list of lists that is our input
-    '''
-    inputs, output = [], []
-    for d in data:
-        inputs.append(d["input"])
-        output.append(d["output"])
-    return inputs, output
 
-def vectorize_data(data):
-    '''
-       vectorize inputs
-    '''
-    
-    inputs, output = get_inputs(data)
-    v_inputs = torch.Tensor(inputs)
-    v_output = torch.Tensor(output)
-    return v_inputs, v_output
-      
+def makePuzzleTarget(label):
+    return torch.LongTensor([label])
 
-def save_puzzles(puzzles):
-    '''
-       Dumps our dictionary to a pickle file
-    '''
-    # open file
-    f = open("vectorized_puzzles.pkl", "wb")
-    # save file
-    pickle.dump(puzzles,f)
-    f.close()
-
-   
-
-def run():
-    i, o = vectorize_data(data)
-    dataset = {"inputs" : i, "output" : o}
-    save_puzzles(dataset)
-
-run()
+def buildVocab(puzzles):
+    word_to_ix = {}
+    for choices, _ in puzzles:
+        for word in choices:
+            if word not in word_to_ix:
+               word_to_ix[word] = len(word_to_ix)
+    return word_to_ix

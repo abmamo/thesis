@@ -1,102 +1,76 @@
-# Randommly generate puzzles using letters from the english alphabet
-# We will have 5 strings where 4 strings will not contain a letter
-# in some other string. The other string will be out odd man out.
-# We then try to see if if a neural network can learn the odd man out
 import random
 import pickle
 import itertools
 
-def get_alphabet():
-    '''
-       Function to generate an alphabet. In this case the English alphabet
-    '''
-    alphabet = '0123456789'
-    return list(alphabet)
+class Generator():
+    def __init__(self, alphabet, length):
+        self.alphabet = alphabet
+        self.length = length
+        self.puzzles = None
 
-def generate_not_containing(alphabet, length = 5):
-    '''
-       For every letter in our alphabet generate a list of strings that 
-       do not contain that alphabet. Return the result as a dictionary
-       with the list of strings as values and the letter they don't contain
-       as key.
-    '''
-    # initialise dictionary
-    not_containing = {}
-    for i in range(len(alphabet)):
-        # get list of letters from alphabet that doesn't include the ith letter
-        cands = [x for x in alphabet if x != alphabet[i]]
-        # add it to the dictionary
-        not_containing[alphabet[i]] = [''.join(x) for x in itertools.combinations(cands, length)]
-    return not_containing
+    def alphabet_to_list(self, alphabet):
+        return list(alphabet)
 
-def generate_containing(alphabet, not_containing, length = 5):
-    '''
-       For every letter in our alphabet generate list of strings that contain
-       the given letter. Return the result as a dictionary indexed by the
-       letter.
-    '''
-    # initialise dictionary
-    containing = {}
-    for i in not_containing:
-        containing[i] = [''.join(x) for x in itertools.combinations(alphabet, length) if i in x]
-    return containing
+    def get_similar(self, alphabet, length):
+        similar = {}
+        for i in range(len(alphabet)):
+            # get alphabet letters different than the ith letter
+            cands = [x for x in alphabet if x != alphabet[i]]
+            # generate all 2 letter combination strings and index them by the ith element
+            similar[alphabet[i]] = [''.join(x) for x in itertools.permutations(cands, length)]
+        return similar
 
-def generate_puzzles(containing, not_containing):
-    '''
-       Function to generate simple puzzles using the english alphabet.
-       One entry in our list doesn't contain a letter the other strings
-       in our list
-    '''
-    # empty list to store our list of puzzles
-    puzzles = []
-    # for every letter in our alphabet
-    for letter in containing:
-        # for every string containing letter
-        for string in containing[letter]:
-            # get 4 random strings containing string and 1 string not containing letter
-            puzzles.append({"odd" : [int(x) for x in random.sample(not_containing[letter], 1)], "similar": [int(x) for x in random.sample(containing[letter], 4)]})
-    return puzzles
+    def get_odd(self, alphabet, similar, length):
+        odd = {}
+        for i in similar:
+            # get all the numbers that contain i
+            odd[i] = [''.join(x) for x in itertools.permutations(alphabet, length) if i in x]
+        return odd
 
-def generate_training_data(puzzles):
-    '''
-       Function that takes the puzzles we generated above and creates
-       a list of dictionaries with input and outputs
-    '''
-    combined = []
-    for puzzle in puzzles:
-        temp = []
-        temp.append(puzzle["odd"][0])
-        temp.extend(puzzle["similar"])
-        combined.append(temp)
-    data = []
-    for c in combined:
-        # the index of the odd word out is going to be the first entry always
-        ind = [1, 0, 0, 0, 0]
-        combined = list(zip(c, ind))
-        random.shuffle(combined) 
-        c[:], ind[:] = zip(*combined)
-        data.append({"input" : c, "output" : ind})
+    def get_puzzles(self, similar, odd, length, num):
+        # this generates 18 * num of puzzles
+        puzzles = []
+        for i in range(num):
+            for key in odd:
+                for number in odd[key]:
+                    # get string that doesn't contain key
+                    random_odd = [x for x in random.sample(similar[key], 1)]
+                    # get <length> number of strings that contain key
+                    random_sim = [x for x in random.sample(odd[key], length)]
+                    # make puzzle
+                    puzzle = random_odd + random_sim
+                    # make puzzle index for shuffling
+                    # the index for the odd one is always at index 0 initially
+                    puz_ind = [1] + [0] * length
+                    # combine the puzzle and its index for shuffling
+                    combined = list(zip(puzzle, puz_ind))
+                    # shuffle
+                    random.shuffle(combined)
+                    # get puzzle and index back
+                    puzzle[:], puz_ind[:] = zip(*combined)
+                    # append the puzzle and index of the odd string as a tuple to
+                    # the puzzle list
+                    puzzles.append((puzzle, puz_ind.index(1)))
+        return puzzles
 
-    return data
+    def generate_data(self, size):
+        alphabet = self.alphabet_to_list(self.alphabet)
+        similar = self.get_similar(alphabet, self.length)
+        odd = self.get_odd(alphabet, similar, self.length)
+        puzzles = self.get_puzzles(similar, odd, self.length, size)
+        self.puzzles = puzzles
+        return puzzles
 
-def save_puzzles(puzzles):
-    '''
-       Dumps our dictionary to a pickle file
-    '''
-    # open file
-    f = open("puzzles.pkl", "wb")
-    # save file
-    pickle.dump(puzzles,f)
-    f.close()
+    def save(self, filename):
+        # open file
+        f = open(filename, "wb")
+        # save file
+        pickle.dump(self.puzzles,f)
+        f.close()
 
-def run():
-    length = 2
-    alphabet = get_alphabet()
-    not_containing = generate_not_containing(alphabet, length)
-    containing = generate_containing(alphabet, not_containing, length)
-    puzzles = generate_puzzles(containing, not_containing)
-    print("%d puzzles generated!" % len(puzzles))
-    data = generate_training_data(puzzles)
-    save_puzzles(data)
-run()
 
+g = Generator('0123456789', 2)
+train_data = g.generate_data(200)
+g.save("train_data.pkl")
+test_data = g.generate_data(10)
+g.save("test_data.pkl")
