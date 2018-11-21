@@ -3,31 +3,29 @@ import pickle
 import itertools
 
 class Generator():
-    def __init__(self, alphabet, length):
-        self.alphabet = alphabet
+    def __init__(self, alphabet, length, choices):
+        self.alphabet = list(alphabet)
         self.length = length
+        self.choices = choices
         self.puzzles = None
 
-    def alphabet_to_list(self, alphabet):
-        return list(alphabet)
-
-    def get_similar(self, alphabet, length):
+    def get_similar(self):
         similar = {}
-        for i in range(len(alphabet)):
+        for i in range(len(self.alphabet)):
             # get alphabet letters different than the ith letter
-            cands = [x for x in alphabet if x != alphabet[i]]
+            cands = [x for x in self.alphabet if x != self.alphabet[i]]
             # generate all 2 letter combination strings and index them by the ith element
-            similar[alphabet[i]] = [''.join(x) for x in itertools.permutations(cands, length)]
+            similar[self.alphabet[i]] = [''.join(x) for x in itertools.permutations(cands, self.length)]
         return similar
 
-    def get_odd(self, alphabet, similar, length):
+    def get_odd(self, similar):
         odd = {}
         for i in similar:
             # get all the numbers that contain i
-            odd[i] = [''.join(x) for x in itertools.permutations(alphabet, length) if i in x]
+            odd[i] = [''.join(x) for x in itertools.permutations(self.alphabet, self.length) if i in x]
         return odd
 
-    def get_puzzles(self, similar, odd, length, num):
+    def get_puzzles(self, similar, odd, num):
         # this generates 18 * num of puzzles
         puzzles = []
         for i in range(num):
@@ -36,12 +34,12 @@ class Generator():
                     # get string that doesn't contain key
                     random_odd = [x for x in random.sample(similar[key], 1)]
                     # get <length> number of strings that contain key
-                    random_sim = [x for x in random.sample(odd[key], length)]
+                    random_sim = [x for x in random.sample(odd[key], self.choices)]
                     # make puzzle
                     puzzle = random_odd + random_sim
                     # make puzzle index for shuffling
                     # the index for the odd one is always at index 0 initially
-                    puz_ind = [1] + [0] * length
+                    puz_ind = [1] + [0] * self.choices
                     # combine the puzzle and its index for shuffling
                     combined = list(zip(puzzle, puz_ind))
                     # shuffle
@@ -54,10 +52,9 @@ class Generator():
         return puzzles
 
     def generate_data(self, size):
-        alphabet = self.alphabet_to_list(self.alphabet)
-        similar = self.get_similar(alphabet, self.length)
-        odd = self.get_odd(alphabet, similar, self.length)
-        puzzles = self.get_puzzles(similar, odd, self.length, size)
+        similar = self.get_similar()
+        odd = self.get_odd(similar)
+        puzzles = self.get_puzzles(similar, odd, size)
         self.puzzles = puzzles
         return puzzles
 
@@ -69,8 +66,9 @@ class Generator():
         f.close()
 
 
-g = Generator('0123456789', 2)
+g = Generator('0123456789', 2, 2)
 train_data = g.generate_data(200)
+print(train_data)
 g.save("train_data.pkl")
 test_data = g.generate_data(10)
 g.save("test_data.pkl")
