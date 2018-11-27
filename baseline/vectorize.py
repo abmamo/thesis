@@ -9,11 +9,11 @@ def oneHot(word, vocab):
     return vec
 
 def makePuzzleVector(puzzle, vocab):
-    (num1, num2, num3), _ = puzzle
-    oneHot1 = oneHot(str(num1), vocab)
-    oneHot2 = oneHot(str(num2), vocab)
-    oneHot3 = oneHot(str(num3), vocab)
-    return torch.FloatTensor(oneHot1 + oneHot2 + oneHot3).view(1, -1)
+    choices, _ = puzzle
+    result = []
+    for choice in choices:
+        result = result + oneHot(choice, vocab)
+    return torch.FloatTensor(result).view(1, -1)
 
 
 def makePuzzleTarget(label):

@@ -26,7 +26,7 @@ class Trainer:
     def __init__(self, train_data, test_data, epochs = 10, dimension = 300):
         self.num_training_epochs = epochs
         self.hidden_layer_size = dimension
-        self.num_choices = 3
+        self.num_choices = len(train_data[0][0])
         self.train_data = train_data
         self.test_data = test_data
         self.vocab = buildVocab(self.train_data + self.test_data)
