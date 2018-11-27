@@ -9,6 +9,21 @@ import torch.optim as optim
 from generator import Generator
 from vectorize import buildVocab, makePuzzleVector, makePuzzleTarget
 
+if torch.cuda.is_available():
+    print("using gpu")
+    cuda = torch.device('cuda:0')
+    FloatTensor = torch.cuda.FloatTensor
+    LongTensor = torch.cuda.LongTensor
+    def cudaify(model):
+        model.cuda()
+else:
+    print("using cpu")
+    cuda = torch.device('cpu')
+    FloatTensor = torch.FloatTensor
+    LongTensor = torch.LongTensor
+    def cudaify(model):
+        pass
+
 class TwoLayerClassifier(nn.Module):  # inheriting from nn.Module!
 
     def __init__(self, num_labels, input_size, hidden_size):
@@ -23,7 +38,7 @@ class TwoLayerClassifier(nn.Module):  # inheriting from nn.Module!
 
 class Trainer:
 
-    def __init__(self, train_data, test_data, epochs = 10, dimension = 300):
+    def __init__(self, train_data, test_data, epochs = 20, dimension = 300):
         self.num_training_epochs = epochs
         self.hidden_layer_size = dimension
         self.num_choices = len(train_data[0][0])
@@ -76,11 +91,3 @@ class Trainer:
         return correct/len(test_d)
 
 
-
-
-train_data = pickle.load( open( "train_data.pkl", "rb" ) )
-test_data = pickle.load( open( "test_data.pkl", "rb" ) )
-trainer = Trainer(train_data, test_data)
-model = trainer.train()
-print('training accuracy = {}'.format(trainer.evaluate(model, trainer.train_data)))
-print('test accuracy = {}'.format(trainer.evaluate(model, trainer.test_data)))
