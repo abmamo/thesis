@@ -34,6 +34,20 @@ def makePuzzleVector(puzzle, vocab):
 def makePuzzleTarget(label):
     return torch.LongTensor([label])
 
+def makePuzzleMatrix(puzzles, vocab):
+    matrix = []
+    for puzzle in puzzles:
+        choices, _ = puzzle
+        oneHotVec = []
+        for choice in choices:
+            oneHotVec += oneHot(str(choice), vocab)
+        matrix.append(oneHotVec)
+    return FloatTensor(matrix, device=cuda)
+
+def makePuzzleTargets(labels):
+    return LongTensor(labels) 
+
+
 def buildVocab(puzzles):
     word_to_ix = {}
     for choices, _ in puzzles:
@@ -41,3 +55,5 @@ def buildVocab(puzzles):
             if word not in word_to_ix:
                word_to_ix[word] = len(word_to_ix)
     return word_to_ix
+
+

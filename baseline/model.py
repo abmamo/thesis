@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import math
+import random
 import pickle
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from generator import Generator
-from vectorize import buildVocab, makePuzzleVector, makePuzzleTarget
+from vectorize import buildVocab, makePuzzleVector, makePuzzleTarget, makePuzzleTargets, makePuzzleMatrix
 
 if torch.cuda.is_available():
     print("using gpu")
@@ -72,6 +73,31 @@ class Trainer:
                 loss = loss_function(log_probs, target)
                 loss.backward()
                 optimizer.step()
+        return model
+
+    def batch_train(self, batch_size):
+        model = TwoLayerClassifier(self.num_choices, 
+                                   self.num_choices * len(self.vocab), 
+                                   self.hidden_layer_size)
+        cudaify(model)
+        print(model)
+        loss_function = nn.NLLLoss()
+        #optimizer = optim.SGD(model.parameters(), lr=0.1)
+        optimizer = optim.Adam(model.parameters())
+        for epoch in range(self.num_training_epochs):
+            model.zero_grad()
+            batch = random.sample(self.train_data, batch_size)
+            input_matrix = makePuzzleMatrix(batch, self.vocab)
+            target = makePuzzleTargets([label for (_, label) in batch])
+            log_probs = model(input_matrix)
+            loss = loss_function(log_probs, target)
+            loss.backward()
+            optimizer.step()
+            if epoch % 100 == 0:
+                print('epoch {}'.format(epoch))
+                train_acc = self.evaluate(model, self.train_data[:200])
+                test_acc = self.evaluate(model, self.test_data)
+                print('train: {:.2f}; test: {:.2f}'.format(train_acc, test_acc))
         return model
 
 

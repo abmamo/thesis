@@ -6,6 +6,7 @@ BASE_10_TRAINING_SIZES = [1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000]
 BASE_16_TRAINING_SIZES = [800000, 400000, 200000, 100000, 50000, 20000, 10000, 5000, 2000, 1000]
 CHOICES = [3, 5] 
 BASES = [10, 16]
+RESULT = {}
 
 def run_experiment(base, training_size, length=2, choice=5, epochs=10, batch_size=1000, dimension = 100, testing_size=100):
     # initialise generator
@@ -19,22 +20,14 @@ def run_experiment(base, training_size, length=2, choice=5, epochs=10, batch_siz
     # generate data
     train_data = g.generate_data(training_size)
     test_data = g.generate_data(testing_size)
-    
-    print("data generated")
 
     # initialise model
     trainer = Trainer(train_data, test_data, epochs, dimension)
 
     # run model on generated data
-    model = trainer.train()
-    print('length of the alphabet is = {}'.format(base))
-    print('length of individual strings is = {}'.format(length))
-    print('number of choices in a puzzle is = {}'.format(choice))
-    print('number of epochs is = {}'.format(epochs))
-    print('training data size is = {}'.format(training_size))
-    print('testing data size is = {}'.format(testing_size))
-    print('training accuracy = {}'.format(trainer.evaluate(model, trainer.train_data)))
-    print('test accuracy = {}'.format(trainer.evaluate(model, trainer.test_data)))
+    model = trainer.batch_train(1000)
+    # save the results of the current training model
+    RESULT[training_size] = [base, length, choice, epochs, testing_size, trainer.evaluate(model, trainer.train_data), trainer.evaluate(model, trainer.test_data)]
 
 
 def run():
