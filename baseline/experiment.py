@@ -4,11 +4,11 @@ from generator import Generator
 
 BASE_10_TRAINING_SIZES = [1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000]
 BASE_16_TRAINING_SIZES = [800000, 400000, 200000, 100000, 50000, 20000, 10000, 5000, 2000, 1000]
-CHOICES = [3, 5] 
+CHOICES = [3, 5]
 BASES = [10, 16]
 RESULT = {}
 
-def run_experiment(base, training_size, length=2, choice=5, epochs=10, batch_size=1000, dimension = 100, testing_size=100):
+def run_experiment(base, training_size, length=2, choice=5, epochs=2000, batch_size=1000, dimension = 100, testing_size=100):
     # initialise generator
     if base == 10:
         g = Generator('0123456789', length, choice)
@@ -32,9 +32,13 @@ def run_experiment(base, training_size, length=2, choice=5, epochs=10, batch_siz
 
 def run():
     for training_size in BASE_10_TRAINING_SIZES:
-            for base in BASES:
-                run_experiment(base=base, training_size=training_size)
+        run_experiment(base=10, training_size=training_size)
 
 
 
-run() 
+run()
+f = open('results.pkl', "wb")
+pickle.dump(RESULT, f)
+f.close()
+
+
