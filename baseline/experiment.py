@@ -7,7 +7,7 @@ BASE_16_TRAINING_SIZES = [800000, 400000, 200000, 100000, 50000, 20000, 10000, 5
 #CHOICES = [3, 5]
 #BASES = [10, 16]
 
-def train_model(base, training_size, length=2, choice=5, epochs=2000, batch_size=1000, dimension = 100, testing_size=100):
+def train_model(base, training_size, length=2, choice=3, epochs=2000, batch_size=1000, dimension = 100, testing_size=100):
     # initialise generator
     if base == 10:
         g = Generator('abcdefghij', length, choice)
