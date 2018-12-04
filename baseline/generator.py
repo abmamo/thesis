@@ -5,6 +5,8 @@ import pickle
 import itertools
 from copy import deepcopy
 
+random.seed(1)
+
 class Generator():
     def __init__(self, alphabet, length, choices):
         self.alphabet = alphabet
