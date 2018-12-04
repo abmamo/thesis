@@ -1,5 +1,7 @@
 # thesis
 
-The model can be run on any machine that has python and pytorch installed by doing
+To run the experiment do:
 
-`python model.py`
+`python experiment.py`
+
+All the libraries in requirements.txt need to be installed.
