@@ -3,6 +3,7 @@
 import math
 import random
 import pickle
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -46,6 +47,12 @@ class Trainer:
         self.train_data = train_data
         self.test_data = test_data
         self.vocab = buildVocab(self.train_data + self.test_data)
+        # list to store training data accuracy at each step
+        self.train_acc = []
+        # list to store the epoch values at each step
+        self.epoch_step = []
+        # list to store testing data accruacy at each epoch
+        self.test_acc = []
 
     def train(self):
         model = TwoLayerClassifier(self.num_choices,
@@ -76,8 +83,8 @@ class Trainer:
         return model
 
     def batch_train(self, batch_size):
-        model = TwoLayerClassifier(self.num_choices, 
-                                   self.num_choices * len(self.vocab), 
+        model = TwoLayerClassifier(self.num_choices,
+                                   self.num_choices * len(self.vocab),
                                    self.hidden_layer_size)
         cudaify(model)
         print(model)
@@ -98,6 +105,9 @@ class Trainer:
                 train_acc = self.evaluate(model, self.train_data[:200])
                 test_acc = self.evaluate(model, self.test_data)
                 print('train: {:.2f}; test: {:.2f}'.format(train_acc, test_acc))
+                self.train_acc.append(train_acc)
+                self.test_acc.append(test_acc)
+                self.epoch_step.append(epoch)
         return model
 
 
@@ -115,5 +125,17 @@ class Trainer:
                 if response == label:
                     correct += 1
         return correct/len(test_d)
+
+    def plot(self):
+        '''
+            Function to save the accuracy vs epoch graph.
+        '''
+        plt.plot(self.epoch_step, self.train_acc, label="training accuracy")
+        plt.plot(self.epoch_step, self.test_acc, label="testing_accuracy")
+        plt.title("Accuracy vs Epochs Graph with Training Data Size: " + str(len(self.train_data)))
+        plt.xlabel("Epochs")
+        plt.ylabel("Accuracy")
+        plt.legend()
+        plt.show()
 
 
