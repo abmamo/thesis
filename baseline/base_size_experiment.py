@@ -7,6 +7,7 @@ import csv
 from model import Trainer
 from generator import Generator
 
+
 BASE_SIZES = [16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42]
 TRAINING_SIZES = [200000, 500000]
 ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmno'
@@ -14,7 +15,7 @@ ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmno'
 def train_model(base, training_size, length=2, choice=3, epochs=2000, batch_size=1000, dimension = 100, testing_size=100):
     # initialise generator
     alphabet = ALPHABET[:base]
-    g = Generator('abcdefghij', length, choice)
+    g = Generator(alphabet, length, choice)
 
     # generate data
     train_data = g.generate_data(training_size)
@@ -37,9 +38,7 @@ def run():
         for base_size in BASE_SIZES:
             result = train_model(base=base_size, training_size = training_size)
             results.append(result)
-        with open("results/base_size_experiment/base_size_experiment_base_" + str(base_size) + "_training_size_" + str(training_size) + ".csv", "w") as f:
+        with open("results/base_size_experiment/base_size_experiment_training_size_" + str(training_size) + ".csv", "w") as f:
              writer = csv.writer(f)
              writer.writerows(results)
 run()
-
-

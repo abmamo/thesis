@@ -2,16 +2,14 @@
 # trainding data size
 
 import csv
-import os, sys
-
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__)) + "/.."
-sys.path.append(os.path.dirname(CURRENT_DIR))
-
-print(CURRENT_DIR)
 
 # Ipmort the model and the generator
 from model import Trainer
 from generator import Generator
+
+import os
+cwd = os.getcwd()
+print(cwd)
 
 BASE_10_TRAINING_SIZES = [1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000]
 BASE_16_TRAINING_SIZES = [800000, 400000, 200000, 100000, 50000, 20000, 10000, 5000, 2000, 1000]

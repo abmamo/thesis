@@ -1,14 +1,14 @@
 import torch
 
 if torch.cuda.is_available():
-    print("using gpu")
+    print("vectorize using gpu")
     cuda = torch.device('cuda:0')
     FloatTensor = torch.cuda.FloatTensor
     LongTensor = torch.cuda.LongTensor
     def cudaify(model):
         model.cuda()
 else:
-    print("using cpu")
+    print("vectorize using cpu")
     cuda = torch.device('cpu')
     FloatTensor = torch.FloatTensor
     LongTensor = torch.LongTensor
