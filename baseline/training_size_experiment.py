@@ -47,9 +47,10 @@ def run():
             for training_size in BASE_16_TRAINING_SIZES[::-1]:
                 result =train_model(base = base, choice = choice, training_size = training_size )
                 results.append(result)
-            with open("results/training_size_experiment/training_size_experiment_base" + str(base) + "_choice" + str(choice) +  ".csv", "w") as f:
+            with open("baseline/results/training_size_experiment/training_size_experiment_base" + str(base) + "_choice" + str(choice) +  ".csv", "w") as f:
                  writer = csv.writer(f)
                  writer.writerows(results)
-run()
+if __name__ == '__main__':
+    run()
 
 

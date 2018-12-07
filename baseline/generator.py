@@ -59,3 +59,7 @@ class Generator():
         for i in range(size):
             puzzles.append(self.generate_puzzle())
         return puzzles
+
+
+g = Generator('abcdefghijk', 2, 5)
+print(g.generate_puzzle())
