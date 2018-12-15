@@ -26,23 +26,38 @@ else:
     def cudaify(model):
         pass
 
-class TwoLayerClassifier(nn.Module):  # inheriting from nn.Module!
-
-    def __init__(self, num_labels, input_size, hidden_size):
-        super(TwoLayerClassifier, self).__init__()
-        self.linear1 = nn.Linear(input_size, hidden_size)
-        self.linear2 = nn.Linear(hidden_size, num_labels)
+class MultiLayerClassifier(nn.Module):
+    def __init__(self, num_labels, input_size, hidden_size, num_hidden):
+        # initialise classifier
+        super(MultiLayerClassifier, self).__init__()
+        # define input layer
+        self.input_layer = nn.Linear(input_size, hidden_size)
+        # define hidden layers
+        if num_hidden > 2:
+           self.hidden_layers = [nn.Linear(hidden_size, hidden_size) for i in range(num_hidden -2)]
+        else:
+           self.hidden_layers = []
+        # define output layer
+        self.output_layer = nn.Linear(hidden_size, num_labels)
 
     def forward(self, input_vec):
-        nextout = self.linear1(input_vec).clamp(min=0)
-        nextout = self.linear2(nextout)
+        # pass it to the inptu layer
+        nextout = self.input_layer(input_vec).clamp(min=0)
+        if len(self.hidden_layers) > 2:
+            # pass it throught the hidden layers
+            for hidden_layer in self.hidden_layers:
+                nextout = hidden_layer(nextout)
+        # pass it through the output layer
+        nextout = self.output_layer(nextout)
+        # return the softmax
         return F.log_softmax(nextout, dim=1)
 
 class Trainer:
 
-    def __init__(self, train_data, test_data, epochs = 20, dimension = 300):
+    def __init__(self, train_data, test_data, epochs = 20, dimension = 300, num_hidden = 2):
         self.num_training_epochs = epochs
         self.hidden_layer_size = dimension
+        self.num_hidden = num_hidden
         self.num_choices = len(train_data[0][0])
         self.train_data = train_data
         self.test_data = test_data
@@ -55,9 +70,7 @@ class Trainer:
         self.test_acc = []
 
     def train(self):
-        model = TwoLayerClassifier(self.num_choices,
-                                   self.num_choices * len(self.vocab),
-                                   self.hidden_layer_size)
+        model = MultiLayerClassifier(self.num_choices, self.num_choices * len(self.vocab), self.hidden_layer_size, self.num_hidden)
         loss_function = nn.NLLLoss()
         optimizer = optim.SGD(model.parameters(), lr=0.1)
         for epoch in range(self.num_training_epochs):
@@ -83,9 +96,7 @@ class Trainer:
         return model
 
     def batch_train(self, batch_size):
-        model = TwoLayerClassifier(self.num_choices,
-                                   self.num_choices * len(self.vocab),
-                                   self.hidden_layer_size)
+        model = MultiLayerClassifier(self.num_choices, self.num_choices * len(self.vocab), self.hidden_layer_size, self.num_hidden)
         cudaify(model)
         print(model)
         loss_function = nn.NLLLoss()
@@ -125,17 +136,5 @@ class Trainer:
                 if response == label:
                     correct += 1
         return correct/len(test_d)
-
-    def plot(self):
-        '''
-            Function to save the accuracy vs epoch graph.
-        '''
-        plt.plot(self.epoch_step, self.train_acc, label="training accuracy")
-        plt.plot(self.epoch_step, self.test_acc, label="testing_accuracy")
-        plt.title("Accuracy vs Epochs Graph with Training Data Size: " + str(len(self.train_data)))
-        plt.xlabel("Epochs")
-        plt.ylabel("Accuracy")
-        plt.legend()
-        plt.show()
 
 

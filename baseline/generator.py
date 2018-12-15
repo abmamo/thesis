@@ -60,6 +60,3 @@ class Generator():
             puzzles.append(self.generate_puzzle())
         return puzzles
 
-
-g = Generator('abcdefghijk', 2, 5)
-print(g.generate_puzzle())
