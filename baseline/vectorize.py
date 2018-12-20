@@ -3,8 +3,8 @@ import torch
 if torch.cuda.is_available():
     print("vectorize using gpu")
     cuda = torch.device('cuda:0')
-    FloatTensor = torch.cuda.FloatTensor
-    LongTensor = torch.cuda.LongTensor
+    FloatTensor = torch.FloatTensor
+    LongTensor = torch.LongTensor
     def cudaify(model):
         model.cuda()
 else:
@@ -28,7 +28,7 @@ def makePuzzleVector(puzzle, vocab):
     result = []
     for choice in choices:
         result = result + oneHot(choice, vocab)
-    return FloatTensor(result).view(1, -1)
+    return torch.FloatTensor(result).view(1, -1)
 
 
 def makePuzzleTarget(label):
