@@ -1,7 +1,7 @@
 import torch
 
 if torch.cuda.is_available():
-    print("vectorize using gpu")
+    print("vectorize using cpu")
     cuda = torch.device('cuda:0')
     FloatTensor = torch.FloatTensor
     LongTensor = torch.LongTensor
@@ -42,7 +42,7 @@ def makePuzzleMatrix(puzzles, vocab):
         for choice in choices:
             oneHotVec += oneHot(str(choice), vocab)
         matrix.append(oneHotVec)
-    return FloatTensor(matrix, device=cuda)
+    return torch.FloatTensor(matrix, device=cuda)
 
 def makePuzzleTargets(labels):
     return LongTensor(labels)
