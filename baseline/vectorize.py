@@ -32,7 +32,7 @@ def makePuzzleVector(puzzle, vocab):
 
 
 def makePuzzleTarget(label):
-    return torch.LongTensor([label])
+    return LongTensor([label])
 
 def makePuzzleMatrix(puzzles, vocab):
     matrix = []

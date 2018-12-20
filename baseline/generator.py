@@ -1,11 +1,25 @@
 
 import copy
 import random
+import torch
 import pickle
 import itertools
 from copy import deepcopy
 
 random.seed(1)
+
+if torch.cuda.is_available():
+    cuda = torch.device('cuda:0')
+    FloatTensor = torch.cuda.FloatTensor
+    LongTensor = torch.cuda.LongTensor
+    def cudaify(model):
+        model.cuda()
+else:
+    cuda = torch.device('cpu')
+    FloatTensor = torch.FloatTensor
+    LongTensor = torch.LongTensor
+    def cudaify(model):
+        pass
 
 class Generator():
     def __init__(self, alphabet, length, choices):
@@ -59,4 +73,5 @@ class Generator():
         for i in range(size):
             puzzles.append(self.generate_puzzle())
         return puzzles
+
 
