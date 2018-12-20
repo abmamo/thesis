@@ -3,19 +3,18 @@
 import math
 import random
 import pickle
-import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from generator import Generator
-from vectorize import buildVocab, makePuzzleVector, makePuzzleTarget, makePuzzleTargets, makePuzzleMatrix
+from model.generator import Generator
+from model.vectorize import buildVocab, makePuzzleVector, makePuzzleTarget, makePuzzleTargets, makePuzzleMatrix
 
 if torch.cuda.is_available():
     print("trainer using gpu")
     cuda = torch.device('cuda:0')
-    FloatTensor = torch.FloatTensor
-    LongTensor = torch.LongTensor
+    FloatTensor = torch.cuda.FloatTensor
+    LongTensor = torch.cuda.LongTensor
     def cudaify(model):
         model.cuda()
 else:
@@ -157,45 +156,45 @@ class Trainer:
                     correct += 1
         return correct/len(test_d)
 
-ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+#ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
-base = 8
-length = 2
-choice = 5
-epochs = 20
-dimension = 100
-training_size = 5000
-testing_size = 100
-alphabet = ALPHABET[:base]
+#base = 16
+#length = 2
+#choice = 5
+#epochs = 20
+#dimension = 100
+#training_size = 5000
+#testing_size = 100
+#alphabet = ALPHABET[:base]
 
-g = Generator(alphabet, length, choice)
-train_data = g.generate_data(training_size)
-test_data = g.generate_data(testing_size)
-trainer = Trainer(train_data, test_data, epochs, dimension)
-model = trainer.train()
+#g = Generator(alphabet, length, choice)
+#train_data = g.generate_data(training_size)
+#test_data = g.generate_data(testing_size)
+#trainer = Trainer(train_data, test_data, epochs, dimension)
+#model = trainer.train()
 #model = trainer.batch_train(1000)
-train_acc = trainer.evaluate(model, train_data[:200])
-test_acc = trainer.evaluate(model, test_data)
+#train_acc = trainer.evaluate(model, train_data[:200])
+#test_acc = trainer.evaluate(model, test_data)
 
-base = 10
-length = 2
-choice = 5
-epochs = 2000
-dimension = 100
-training_size = 5000
-testing_size = 100
-alphabet = ALPHABET[:base]
+#base = 16
+#length = 2
+#choice = 5
+#epochs = 2000
+#dimension = 100
+#training_size = 2500
+#testing_size = 100
+#alphabet = ALPHABET[:base]
 
-g = Generator(alphabet, length, choice)
-train_data = g.generate_data(training_size)
-test_data = g.generate_data(testing_size)
-trainer = Trainer(train_data, test_data, epochs, dimension)
-old_model = MultiLayerClassifier.initialize_from_model_and_vocab(model, trainer.vocab)
-new_model = trainer.batch_train(old_model)
-train_acc = trainer.evaluate(new_model, train_data[:1000])
-test_acc = trainer.evaluate(new_model, test_data)
-print()
-print(train_acc)
-print(test_acc)
+#g = Generator(alphabet, length, choice)
+#train_data = g.generate_data(training_size)
+#test_data = g.generate_data(testing_size)
+#trainer = Trainer(train_data, test_data, epochs, dimension)
+#old_model = MultiLayerClassifier.initialize_from_model_and_vocab(model, trainer.vocab)
+#new_model = trainer.batch_train(old_model)
+#train_acc = trainer.evaluate(new_model, train_data[:1000])
+#test_acc = trainer.evaluate(new_model, test_data)
+#print()
+#print(train_acc)
+#print(test_acc)
 
 

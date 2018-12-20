@@ -4,11 +4,11 @@
 import csv
 
 # Ipmort the model and the generator
-from model import Trainer
-from generator import Generator
+from model.nn import Trainer
+from model.generator import Generator
 
 
-LARGE_TRAINING_SIZE = [1000000, 2000000, 4000000]
+TRAINING_SIZES = [1000000, 2000000, 4000000]
 ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmno'
 
 def train_model(base, training_size, length=2, choice=5, epochs=2000, batch_size=1000, dimension = 100, testing_size=100, num_hidden = 2):
@@ -31,14 +31,15 @@ def train_model(base, training_size, length=2, choice=5, epochs=2000, batch_size
 
     return (base, train_acc, test_acc)
 
-def run():
+def run_experiment():
     results = []
-    for training_size in LARGE_TRAINING_SIZE:
+    for training_size in TRAINING_SIZES:
         result = train_model(base=42, training_size = training_size)
         results.append(result)
-        with open("baseline/results/num_hidden_experiments/large_training_size_experiment_training_size_" + str(training_size) + ".csv", "w") as f:
+        with open("baseline/results/training_size_experiment/training_size_experiment_training_size_" + str(training_size) + ".csv", "w") as f:
             writer = csv.writer(f)
             writer.writerows(results)
 
 if __name__ == '__main__':
-    run()
+    print('experimenting with large training data sizes')
+    run_experiment()
