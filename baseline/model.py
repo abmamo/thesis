@@ -31,6 +31,8 @@ class MultiLayerClassifier(nn.Module):
         super(MultiLayerClassifier, self).__init__()
         self.vocab = vocab
         self.num_labels = num_labels
+        # Calculate hidden size using num labels and the total num of
+        # puzzles
         input_size = num_labels * len(vocab)
         self.hidden_size = hidden_size
         self.num_hidden = num_hidden
