@@ -4,7 +4,7 @@
 import csv
 
 # Ipmort the model and the generator
-from model.nn import Trainer
+from model.trainer import Trainer
 from model.generator import Generator
 
 
@@ -30,7 +30,7 @@ def train_model(base, training_size, length=2, choice=3, epochs=2000, batch_size
     trainer = Trainer(train_data, test_data, epochs, dimension)
 
     # run model on generated data
-    model = trainer.batch_train(1000)
+    model = trainer.batch_train()
 
     train_acc = trainer.evaluate(model, train_data[:200])
     test_acc = trainer.evaluate(model, test_data)
@@ -38,6 +38,7 @@ def train_model(base, training_size, length=2, choice=3, epochs=2000, batch_size
     return (training_size, train_acc, test_acc)
 
 def run_experiment():
+    print('experimenting with training data sizes')
     for base in BASES:
         for choice in CHOICES:
             results = []
@@ -48,7 +49,6 @@ def run_experiment():
                  writer = csv.writer(f)
                  writer.writerows(results)
 if __name__ == '__main__':
-    print('experimenting with training data sizes')
     run_experiment()
 
 

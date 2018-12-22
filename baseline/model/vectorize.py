@@ -28,7 +28,7 @@ def makePuzzleVector(puzzle, vocab):
     result = []
     for choice in choices:
         result = result + oneHot(choice, vocab)
-    return torch.FloatTensor(result).view(1, -1)
+    return FloatTensor(result).view(1, -1)
 
 
 def makePuzzleTarget(label):
@@ -42,7 +42,7 @@ def makePuzzleMatrix(puzzles, vocab):
         for choice in choices:
             oneHotVec += oneHot(str(choice), vocab)
         matrix.append(oneHotVec)
-    return torch.FloatTensor(matrix, device=cuda)
+    return FloatTensor(matrix, device=cuda)
 
 def makePuzzleTargets(labels):
     return LongTensor(labels)
