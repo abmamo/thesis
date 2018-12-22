@@ -1,10 +1,10 @@
 import torch
 
 if torch.cuda.is_available():
-    print("vectorize using gpu")
+    print("vectorize using cpu")
     cuda = torch.device('cuda:0')
-    FloatTensor = torch.cuda.FloatTensor
-    LongTensor = torch.cuda.LongTensor
+    FloatTensor = torch.FloatTensor
+    LongTensor = torch.LongTensor
     def cudaify(model):
         model.cuda()
 else:
@@ -32,7 +32,7 @@ def makePuzzleVector(puzzle, vocab):
 
 
 def makePuzzleTarget(label):
-    return torch.LongTensor([label])
+    return LongTensor([label])
 
 def makePuzzleMatrix(puzzles, vocab):
     matrix = []
