@@ -69,15 +69,14 @@ class MultiLayerClassifier(nn.Module):
                 weights[(word, label)] = list(self.input_layer.weight[:,label * len(self.vocab) + word_index].data.numpy())
         return weights
 
-    @staticmethod
-    def initialize_from_model_and_vocab(model, vocab):
+    def initialize_from_model_and_vocab(self, model, vocab):
         # Initialise new network with new vocabulary and the values from the old model
-        result = MultiLayerClassifier(vocab, model.num_labels, model.hidden_size, model.num_hidden)
+        result = MultiLayerClassifier(vocab, self.num_labels, self.hidden_size, self.num_hidden)
         # Set the weights to be zero initially
-        input_layer_weights = [[0.0] * model.hidden_size for i in range(model.num_labels * len(vocab))]
+        input_layer_weights = [[0.0] * self.hidden_size for i in range(self.num_labels * len(vocab))]
         # Update the weights using the weights from the old model
         for ((word, choice_index), weight_vector) in model.dump().items():
-            input_layer_weights[len(vocab) * choice_index + vocab[word]] = weight_vector
+            input_layer_weights[len(vocab) * choice_index + model.vocab[word]] = weight_vector
         input_layer_weights = torch.t(FloatTensor(input_layer_weights))
         input_layer_weights.requires_grad = True
         result.input_layer.weight = torch.nn.Parameter(input_layer_weights)
