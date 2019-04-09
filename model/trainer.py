@@ -100,50 +100,5 @@ class Trainer:
                     correct += 1
         return correct/len(test_d)
 
-#ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-
-
-#base = 10
-#length = 2
-#choice = 5
-#epochs = 2000
-#dimension = 100
-#training_size = 5000
-#testing_size = 100
-#alphabet = ALPHABET[:base]
-
-#g = Generator(alphabet, length, choice)
-#train_data = g.generate_data(training_size)
-#test_data = g.generate_data(testing_size)
-#trainer = Trainer(train_data, test_data, epochs, dimension)
-#model = trainer.batch_train()
-#train_acc = trainer.evaluate(model, train_data[:200])
-#test_acc = trainer.evaluate(model, test_data)
-
-# Doesn't work when you increase the lengths of words
-# because how initialize from old model works maybe change that to account
-# for increase in the length of words in our puzzle
-
-
-# Doesn't work when you increase the number of choices 
-# either becaue there is a size mismatch in in batch train
-
-#base = 10
-#length = 2
-#choice = 6
-#epochs = 2000
-#dimension = 100
-#training_size = 5000
-#testing_size = 100
-#alphabet = ALPHABET[:base]
-
-#g = Generator(alphabet, length, choice)
-#train_data = g.generate_data(training_size)
-#test_data = g.generate_data(testing_size)
-#old_model = MultiLayerClassifier.initialize_from_model_and_vocab(model, trainer.vocab)
-#trainer = Trainer(train_data, test_data, epochs, dimension, old_model)
-#new_model = trainer.batch_train()
-#train_acc = trainer.evaluate(new_model, train_data[:1000])
-#test_acc = trainer.evaluate(new_model, test_data)
 
 

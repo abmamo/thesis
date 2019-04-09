@@ -55,7 +55,7 @@ class MultiLayerClassifier(nn.Module):
         # pass the result of the previous layer to a hidden layer
         if self.num_hidden > 2:
             for hidden_layer in self.hidden_layers:
-                nexout = hidden_layer(nextout)
+                nextout = hidden_layer(nextout)
         # output layer
         nextout = self.output_layer(nextout)
         # pass output layer outcome through a softmax
@@ -66,7 +66,7 @@ class MultiLayerClassifier(nn.Module):
         for word in self.vocab:
             word_index = self.vocab[word]
             for label in range(self.num_labels):
-                weights[(word, label)] = list(self.input_layer.weight[:,label * len(self.vocab) + word_index].data.numpy())
+                weights[(word, label)] = list(self.input_layer.weight[:,label * len(self.vocab) + word_index].data)
         return weights
 
     @staticmethod
