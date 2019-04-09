@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# import all dependencies
 import math
 import random
 import pickle
@@ -8,11 +8,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+# use cuda if available
 if torch.cuda.is_available():
     print("network using gpu")
     cuda = torch.device('cuda:0')
-    FloatTensor = torch.FloatTensor
-    LongTensor = torch.LongTensor
+    FloatTensor = torch.cuda.FloatTensor
+    LongTensor = torch.cuda.LongTensor
     def cudaify(model):
         model.cuda()
 else:
@@ -62,11 +63,16 @@ class MultiLayerClassifier(nn.Module):
         return F.log_softmax(nextout, dim=1)
 
     def dump(self):
+        # defien empty dictionary to store weights in
         weights = {}
+        # iterate through each word in the vocabulary
         for word in self.vocab:
+            # get the index of each word
             word_index = self.vocab[word]
             for label in range(self.num_labels):
+                # get the value of the weights in the outer layer
                 weights[(word, label)] = list(self.input_layer.weight[:,label * len(self.vocab) + word_index].data)
+        # return weights
         return weights
 
     @staticmethod
@@ -77,10 +83,15 @@ class MultiLayerClassifier(nn.Module):
         input_layer_weights = [[0.0] * model.hidden_size for i in range(model.num_labels * len(vocab))]
         # Update the weights using the weights from the old model
         for ((word, choice_index), weight_vector) in model.dump().items():
+            # update the weights with the weight vector from the previous model
             input_layer_weights[len(vocab) * choice_index + vocab[word]] = weight_vector
+        # transpose the weights
         input_layer_weights = torch.t(FloatTensor(input_layer_weights))
+        # make computing gradients easier
         input_layer_weights.requires_grad = True
+        # update the layer of the model
         result.input_layer.weight = torch.nn.Parameter(input_layer_weights)
+        # return the resulting model
         return result
 
 

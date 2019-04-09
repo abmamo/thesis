@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# import dependencies
 import math
 import random
 import pickle
@@ -11,11 +11,12 @@ from model.nn import MultiLayerClassifier
 from model.generator import Generator
 from model.vectorize import buildVocab, makePuzzleVector, makePuzzleTarget, makePuzzleTargets, makePuzzleMatrix
 
+# use cuda if available
 if torch.cuda.is_available():
     print("trainer using gpu")
     cuda = torch.device('cuda:0')
-    FloatTensor = torch.FloatTensor
-    LongTensor = torch.LongTensor
+    FloatTensor = torch.cuda.FloatTensor
+    LongTensor = torch.cuda.LongTensor
     def cudaify(model):
         model.cuda()
 else:
@@ -26,9 +27,8 @@ else:
     def cudaify(model):
         pass
 
-
+# define trainer class
 class Trainer:
-
     def __init__(self, train_data, test_data, epochs = 20, dimension = 300, old_model=None, num_hidden = 2, batch_size = 1000):
         self.num_training_epochs = epochs
         self.hidden_layer_size = dimension

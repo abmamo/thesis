@@ -50,5 +50,6 @@ def run_experiment():
              writer = csv.writer(f)
              writer.writerows(results)
 
+# don't run it when imported
 if __name__ == '__main__':
     run_experiment()
