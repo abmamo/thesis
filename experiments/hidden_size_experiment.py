@@ -2,6 +2,7 @@
 # hidden layer size
 
 # import  csv module to save results of experiment
+
 import csv
 
 # Ipmort the model and the generator

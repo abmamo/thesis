@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# import dependencies
+
 import math
 import random
 import pickle
@@ -11,12 +11,11 @@ from model.nn import MultiLayerClassifier
 from model.generator import Generator
 from model.vectorize import buildVocab, makePuzzleVector, makePuzzleTarget, makePuzzleTargets, makePuzzleMatrix
 
-# use cuda if available
 if torch.cuda.is_available():
     print("trainer using gpu")
     cuda = torch.device('cuda:0')
-    FloatTensor = torch.cuda.FloatTensor
-    LongTensor = torch.cuda.LongTensor
+    FloatTensor = torch.FloatTensor
+    LongTensor = torch.LongTensor
     def cudaify(model):
         model.cuda()
 else:
@@ -27,8 +26,9 @@ else:
     def cudaify(model):
         pass
 
-# define trainer class
+
 class Trainer:
+
     def __init__(self, train_data, test_data, epochs = 20, dimension = 300, old_model=None, num_hidden = 2, batch_size = 1000):
         self.num_training_epochs = epochs
         self.hidden_layer_size = dimension
@@ -41,8 +41,8 @@ class Trainer:
         if old_model == None:
             self.model = MultiLayerClassifier(self.vocab, self.num_choices, self.hidden_layer_size, self.num_hidden)
         else:
-            self.model = MultiLayerClassifier.initialize_from_model_and_vocab(old_model, self.vocab)
-        
+            new_model = MultiLayerClassifier(self.vocab, self.num_choices, self.hidden_layer_size, self.num_hidden)
+            self.model = new_model.initialize_from_model_and_vocab(old_model, new_model.vocab)
 
     def train(self):
         print(self.model)
@@ -99,5 +99,67 @@ class Trainer:
                 if response == label:
                     correct += 1
         return correct/len(test_d)
+
+ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
+
+base = 10
+length = 2
+choice = 5
+epochs = 2000
+dimension = 100
+training_size = 50000
+testing_size = 100
+alphabet = ALPHABET[:base]
+
+g = Generator(alphabet, length, choice)
+train_data = g.generate_data(training_size)
+test_data = g.generate_data(testing_size)
+trainer = Trainer(train_data, test_data, epochs, dimension)
+model = trainer.batch_train()
+train_acc = trainer.evaluate(model, train_data[:200])
+test_acc = trainer.evaluate(model, test_data)
+
+# Doesn't work when you increase the lengths of words
+# because how initialize from old model works maybe change that to account
+# for increase in the length of words in our puzzle
+
+
+# Doesn't work when you increase the number of choices 
+# either becaue there is a size mismatch in in batch train
+
+base = 10
+length = 3
+choice = 5
+epochs = 2000
+dimension = 100
+training_size = 50000
+testing_size = 100
+alphabet = ALPHABET[:base]
+
+g = Generator(alphabet, length, choice)
+train_data = g.generate_data(training_size)
+test_data = g.generate_data(testing_size)
+trainer = Trainer(train_data, test_data, epochs, dimension, model)
+new_model = trainer.batch_train()
+train_acc = trainer.evaluate(new_model, train_data[:1000])
+test_acc = trainer.evaluate(new_model, test_data)
+
+base = 10
+length = 3
+choice = 5
+epochs = 2000
+dimension = 100
+training_size = 50000
+testing_size = 100
+alphabet = ALPHABET[:base]
+
+g = Generator(alphabet, length, choice)
+train_data = g.generate_data(training_size)
+test_data = g.generate_data(testing_size)
+trainer = Trainer(train_data, test_data, epochs, dimension)
+model = trainer.batch_train()
+train_acc = trainer.evaluate(model, train_data[:200])
+test_acc = trainer.evaluate(model, test_data)
 
 

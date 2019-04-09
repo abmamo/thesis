@@ -9,6 +9,7 @@ from model.trainer import Trainer
 from model.generator import Generator
 
 # set experiment parameters
+
 BASE_SIZES = [16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42]
 TRAINING_SIZES = [200000, 500000]
 ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmno'
@@ -49,6 +50,11 @@ def run_experiment():
             # add result to lsit
             results.append(result)
         # save results list as CSV
+    for training_size in TRAINING_SIZES:
+        results = []
+        for base_size in BASE_SIZES:
+            result = train_model(base=base_size, training_size = training_size)
+            results.append(result)
         with open("baseline/results/base_size_experiment/base_size_experiment_training_size_" + str(training_size) + ".csv", "w") as f:
              writer = csv.writer(f)
              writer.writerows(results)

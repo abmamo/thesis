@@ -33,6 +33,7 @@ def train_model(base, training_size, length=2, choice=3, epochs=2000, batch_size
     # run model on generated data
     model = trainer.batch_train()
 
+
     # evaulate the performance of the model
     train_acc = trainer.evaluate(model, train_data[:200])
     test_acc = trainer.evaluate(model, test_data)
@@ -56,6 +57,7 @@ def run_experiment():
                  writer.writerows(results)
 
 # do not run when importe
+
 if __name__ == '__main__':
     run_experiment()
 
