@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# import all dependencies
 import math
 import random
 import pickle
@@ -8,11 +8,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+# use cuda if available
 if torch.cuda.is_available():
     print("network using gpu")
     cuda = torch.device('cuda:0')
-    FloatTensor = torch.FloatTensor
-    LongTensor = torch.LongTensor
+    FloatTensor = torch.cuda.FloatTensor
+    LongTensor = torch.cuda.LongTensor
     def cudaify(model):
         model.cuda()
 else:
@@ -55,31 +56,42 @@ class MultiLayerClassifier(nn.Module):
         # pass the result of the previous layer to a hidden layer
         if self.num_hidden > 2:
             for hidden_layer in self.hidden_layers:
-                nexout = hidden_layer(nextout)
+                nextout = hidden_layer(nextout)
         # output layer
         nextout = self.output_layer(nextout)
         # pass output layer outcome through a softmax
         return F.log_softmax(nextout, dim=1)
 
     def dump(self):
+        # defien empty dictionary to store weights in
         weights = {}
+        # iterate through each word in the vocabulary
         for word in self.vocab:
+            # get the index of each word
             word_index = self.vocab[word]
             for label in range(self.num_labels):
-                weights[(word, label)] = list(self.input_layer.weight[:,label * len(self.vocab) + word_index].data.numpy())
+                # get the value of the weights in the outer layer
+                weights[(word, label)] = list(self.input_layer.weight[:,label * len(self.vocab) + word_index].data)
+        # return weights
         return weights
 
-    def initialize_from_model_and_vocab(self, model, vocab):
+    @staticmethod
+    def initialize_from_model_and_vocab(model, vocab):
         # Initialise new network with new vocabulary and the values from the old model
-        result = MultiLayerClassifier(vocab, self.num_labels, self.hidden_size, self.num_hidden)
+        result = MultiLayerClassifier(vocab, model.num_labels, model.hidden_size, model.num_hidden)
         # Set the weights to be zero initially
-        input_layer_weights = [[0.0] * self.hidden_size for i in range(self.num_labels * len(vocab))]
+        input_layer_weights = [[0.0] * model.hidden_size for i in range(model.num_labels * len(vocab))]
         # Update the weights using the weights from the old model
         for ((word, choice_index), weight_vector) in model.dump().items():
-            input_layer_weights[len(vocab) * choice_index + model.vocab[word]] = weight_vector
+            # update the weights with the weight vector from the previous model
+            input_layer_weights[len(vocab) * choice_index + vocab[word]] = weight_vector
+        # transpose the weights
         input_layer_weights = torch.t(FloatTensor(input_layer_weights))
+        # make computing gradients easier
         input_layer_weights.requires_grad = True
+        # update the layer of the model
         result.input_layer.weight = torch.nn.Parameter(input_layer_weights)
+        # return the resulting model
         return result
 
 

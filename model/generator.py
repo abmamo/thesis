@@ -1,4 +1,5 @@
 
+# import all dependencies
 import copy
 import random
 import torch
@@ -6,8 +7,10 @@ import pickle
 import itertools
 from copy import deepcopy
 
+# seed random to be able to repeat training experiment
 random.seed(1)
 
+# run on CUDA if available
 if torch.cuda.is_available():
     cuda = torch.device('cuda:0')
     FloatTensor = torch.cuda.FloatTensor
@@ -21,6 +24,7 @@ else:
     def cudaify(model):
         pass
 
+# define data generator class
 class Generator():
     def __init__(self, alphabet, length, choices):
         self.alphabet = alphabet
