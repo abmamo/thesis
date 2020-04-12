@@ -14,22 +14,28 @@ from model.vectorize import buildVocab, makePuzzleVector, makePuzzleTarget, make
 # use cuda if available
 if torch.cuda.is_available():
     print("trainer using gpu")
+    print("-----------------")
     cuda = torch.device('cuda:0')
     FloatTensor = torch.cuda.FloatTensor
     LongTensor = torch.cuda.LongTensor
+
     def cudaify(model):
         model.cuda()
 else:
     print("trainer using cpu")
+    print("-----------------")
     cuda = torch.device('cpu')
     FloatTensor = torch.FloatTensor
     LongTensor = torch.LongTensor
+
     def cudaify(model):
         pass
 
 # define trainer class
+
+
 class Trainer:
-    def __init__(self, train_data, test_data, epochs = 20, dimension = 300, old_model=None, num_hidden = 2, batch_size = 1000):
+    def __init__(self, train_data, test_data, epochs=20, dimension=300, old_model=None, num_hidden=2, batch_size=1000):
         self.num_training_epochs = epochs
         self.hidden_layer_size = dimension
         self.num_hidden = num_hidden
@@ -39,17 +45,21 @@ class Trainer:
         self.vocab = buildVocab(self.train_data + self.test_data)
         self.batch_size = batch_size
         if old_model == None:
-            self.model = MultiLayerClassifier(self.vocab, self.num_choices, self.hidden_layer_size, self.num_hidden)
+            self.model = MultiLayerClassifier(
+                self.vocab, self.num_choices, self.hidden_layer_size, self.num_hidden)
         else:
-            self.model = MultiLayerClassifier.initialize_from_model_and_vocab(old_model, self.vocab)
-        
+            self.model = MultiLayerClassifier.initialize_from_model_and_vocab(
+                old_model, self.vocab)
 
     def train(self):
+        print('the model is: ')
+        print("--------------")
         print(self.model)
         loss_function = nn.NLLLoss()
         optimizer = optim.Adam(self.model.parameters())
         for epoch in range(self.num_training_epochs):
-            print('epoch {}'.format(epoch))
+            print('epoch {}'.format(epoch) +
+                  ' / {}'.format(self.num_training_epochs))
             for instance, label in self.train_data:
                 self.model.zero_grad()
                 input_vec = makePuzzleVector((instance, label), self.vocab)
@@ -78,12 +88,13 @@ class Trainer:
             loss.backward()
             optimizer.step()
             if epoch % 100 == 0:
-                print('epoch {}'.format(epoch))
+                print('epoch {}'.format(epoch) +
+                      ' / {}'.format(self.num_training_epochs))
                 train_acc = self.evaluate(self.model, self.train_data[:200])
                 test_acc = self.evaluate(self.model, self.test_data)
-                print('train: {:.2f}; test: {:.2f}'.format(train_acc, test_acc))
+                print('train accuracy: {:.2f}; test accuracy: {:.2f}'.format(
+                    train_acc, test_acc))
         return self.model
-
 
     def evaluate(self, model, test_d):
         """Evaluates the trained network on test data."""
@@ -93,11 +104,10 @@ class Trainer:
             for instance, label in test_d:
                 input_vec = makePuzzleVector((instance, label), word_to_ix)
                 log_probs = model(input_vec)
-                probs = [math.exp(log_prob) for log_prob in log_probs.tolist()[0]]
+                probs = [math.exp(log_prob)
+                         for log_prob in log_probs.tolist()[0]]
                 ranked_probs = list(zip(probs, range(len(probs))))
                 response = max(ranked_probs)[1]
                 if response == label:
                     correct += 1
         return correct/len(test_d)
-
-

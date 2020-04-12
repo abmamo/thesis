@@ -3,22 +3,27 @@ import torch
 
 # use cuda if available
 if torch.cuda.is_available():
-    print("vectorize using cpu")
+    print("vectorize using gpu")
+    print("-------------------")
     cuda = torch.device('cuda:0')
     FloatTensor = torch.FloatTensor
     LongTensor = torch.LongTensor
+
     def cudaify(model):
         model.cuda()
 else:
     print("vectorize using cpu")
     cuda = torch.device('cpu')
+    print("-------------------")
     FloatTensor = torch.FloatTensor
     LongTensor = torch.LongTensor
+
     def cudaify(model):
         pass
 
 # seed the random generation to replicate experiment
 torch.manual_seed(1)
+
 
 def oneHot(word, vocab):
     '''
@@ -31,6 +36,7 @@ def oneHot(word, vocab):
     vec[vocab[word]] = 1
     # return vector
     return vec
+
 
 def makePuzzleVector(puzzle, vocab):
     '''
@@ -56,6 +62,7 @@ def makePuzzleTarget(label):
     '''
     return LongTensor([label])
 
+
 def makePuzzleMatrix(puzzles, vocab):
     '''
        function to convert a collection of puzzles
@@ -79,6 +86,7 @@ def makePuzzleMatrix(puzzles, vocab):
     # return tensor matrix
     return FloatTensor(matrix, device=cuda)
 
+
 def makePuzzleTargets(labels):
     return LongTensor(labels)
 
@@ -95,8 +103,6 @@ def buildVocab(puzzles):
             # if word is not already in the dictionary add it
             # with an increasing index
             if word not in word_to_ix:
-               word_to_ix[word] = len(word_to_ix)
+                word_to_ix[word] = len(word_to_ix)
     # return vocabulary
     return word_to_ix
-
-
