@@ -12,19 +12,27 @@ random.seed(1)
 
 # run on CUDA if available
 if torch.cuda.is_available():
+    print("generator using gpu")
+    print("-------------------")
     cuda = torch.device('cuda:0')
     FloatTensor = torch.cuda.FloatTensor
     LongTensor = torch.cuda.LongTensor
+
     def cudaify(model):
         model.cuda()
 else:
+    print("generator using cpu")
+    print("-------------------")
     cuda = torch.device('cpu')
     FloatTensor = torch.FloatTensor
     LongTensor = torch.LongTensor
+
     def cudaify(model):
         pass
 
 # define data generator class
+
+
 class Generator():
     def __init__(self, alphabet, length, choices):
         self.alphabet = alphabet
@@ -77,5 +85,3 @@ class Generator():
         for i in range(size):
             puzzles.append(self.generate_puzzle())
         return puzzles
-
-
