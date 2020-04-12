@@ -1,4 +1,4 @@
-# Exploring Training Regimens for Various Neural Network Architectures Using Curriculum Learning: A Case Study of the Odd-Man-Out Task
+# Scalable Learning for the Odd-Man-Out Task with Applications to Word Vector Induction
 
 ## Overview
 
