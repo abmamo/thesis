@@ -12,15 +12,15 @@ from model.trainer import Trainer
 from model.generator import Generator
 
 # set experiment parameters
-#HIDDEN_SIZES = [100, 200, 400]
-HIDDEN_SIZES = [100, 200]
-#BASE_SIZES = [16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42]
-BASE_SIZES = [16, 18]
-#TRAINING_SIZES = [1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 200000, 500000]
-TRAINING_SIZES = [1000, 2000]
-#NUM_CHOICES = [2, 3, 4, 5, 6, 7, 8]
-NUM_CHOICES = [2, 3]
-ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmno'
+HIDDEN_SIZES = [100, 200, 400]
+BASE_SIZES = [16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42]
+TRAINING_SIZES = [1000, 2000, 4000, 8000,
+                  16000, 32000, 64000, 128000, 200000, 500000]
+NUM_CHOICES = [2, 3, 4, 5, 6, 7, 8]
+STRIDES = [2, 4, 8]
+START_BASE_SIZES = [8, 16, 32]
+MAX_BASE = 40
+ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789'
 
 
 def train_model(base, training_size=200000, length=2, choice=5, epochs=2000, batch_size=1000, dimension=100, testing_size=100):
@@ -36,7 +36,11 @@ def train_model(base, training_size=200000, length=2, choice=5, epochs=2000, bat
     test_data = g.generate_data(testing_size)
 
     # initialise trainer class
-    trainer = Trainer(train_data, test_data, epochs, dimension)
+    # initialise model
+    if old_model == None:
+        trainer = Trainer(train_data, test_data, epochs, dimension)
+    else:
+        trainer = Trainer(train_data, test_data, epochs, dimension, old_model)
 
     # run model on generated data
     model = trainer.batch_train()
@@ -121,7 +125,24 @@ def run_training_size_experiment():
 
 
 def run_curriculum_learning_experiment():
-    pass
+    # currently being modified
+    print('--------------------------------')
+    print('experimenting with curriculum learning')
+    print('--------------------------------')
+    # define dict to store results
+    results = {}
+    for base_size in START_BASE_SIZES:
+        prev_model, prev_trainer, train_acc, test_acc = train_model(
+            base=base_size)
+        for stride in STRIDES:
+            while base_size <= MAX_BASE:
+                base_size = base_size + stride
+                old_model = MultiLayerClassifier.initialize_from_model_and_vocab(
+                    prev_model, prev_trainer.vocab)
+                model, trainer, train_acc, test_acc = train_model(
+                    base=base_size, old_model=old_model)
+        results[base_size]
+        results.append((train_acc, test_acc))
 
 
 if __name__ == '__main__':
