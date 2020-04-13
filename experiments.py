@@ -1,11 +1,11 @@
 # experiment to test the relationship between accuracy and
 # trainding data size
-
+from datetime import datetime
 # import csv module to save results of experiment
 import csv
 
 # import pickle module to save python data s python objects
-
+import pickle
 
 # Ipmort the model, the trainer and the generator
 from model.trainer import Trainer
@@ -125,11 +125,17 @@ def run_curriculum_learning_experiment():
 
 
 if __name__ == '__main__':
+    # start count
+    start = datetime.now()
     # run all experiments
     base_size_results = run_base_size_experiment()
     hidden_layer_size_results = run_hidden_layer_size_experiment()
     num_choices_results = run_num_choices_experiment()
     training_size_results = run_training_size_experiment()
+    # show time
+    print('-----------------------------')
+    print('Time elapsed: {}'.format(datetime.now()-start))
+    print('-----------------------------')
     # aggregate all results in a dictionary
     all_results = {'base_size': base_size_results, 'hidden_layer_size': hidden_layer_size_results,
                    'num_choices': num_choices_results, 'training_size': training_size_results}
