@@ -1,15 +1,13 @@
 # experiment to test the relationship between accuracy and
 # trainding data size
 from datetime import datetime
-# import csv module to save results of experiment
-import csv
-
 # import pickle module to save python data s python objects
 import pickle
-
-# Ipmort the model, the trainer and the generator
+# Import the model, the trainer and the generator
 from model.trainer import Trainer
 from model.generator import Generator
+# import mprocessing module to run multiple experiments at the same time
+from multiprocessing import Process, Manager
 
 # set experiment parameters
 HIDDEN_SIZES = [100, 200, 400]
@@ -23,7 +21,7 @@ MAX_BASE = 40
 ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789'
 
 
-def train_model(base, training_size=200000, length=2, choice=5, epochs=2000, batch_size=1000, dimension=100, testing_size=100):
+def train_model(base, training_size=200000, length=2, choice=5, epochs=2000, batch_size=1000, dimension=100, testing_size=100, old_model=None):
     '''
        Function to generate data and train model.
     '''
@@ -55,7 +53,7 @@ def train_model(base, training_size=200000, length=2, choice=5, epochs=2000, bat
 # Experiments
 
 
-def run_base_size_experiment():
+def run_base_size_experiment(all_results):
     print('----------------------------')
     print('experimenting with base size')
     print('----------------------------')
@@ -68,10 +66,10 @@ def run_base_size_experiment():
         result = train_model(base=base_size)
         # add result to lsit
         results[base_size] = result
-    return results
+    all_results['base_size'] = results
 
 
-def run_hidden_layer_size_experiment():
+def run_hidden_layer_size_experiment(all_results):
     print('-------------------------------------')
     print('experimenting with hidden layer sizes')
     print('-------------------------------------')
@@ -87,10 +85,10 @@ def run_hidden_layer_size_experiment():
                              dimension=hidden_size)
         # add the results to the end
         results[hidden_size] = result
-    return results
+    all_results['hidden_layer_size'] = results
 
 
-def run_num_choices_experiment():
+def run_num_choices_experiment(all_results):
     print('-------------------------------------')
     print('experimenting with hidden layer sizes')
     print('-------------------------------------')
@@ -104,10 +102,10 @@ def run_num_choices_experiment():
         result = train_model(base=36, training_size=500000, choice=choice)
         # Add result to results list
         results[choice] = result
-    return results
+    all_results['num_choices'] = results
 
 
-def run_training_size_experiment():
+def run_training_data_size_experiment(all_results):
     print('--------------------------------')
     print('experimenting with training size')
     print('--------------------------------')
@@ -121,7 +119,7 @@ def run_training_size_experiment():
         result = train_model(base=36,
                              training_size=training_size)
         results[training_size] = result
-    return results
+    all_results['training_data_size'] = results
 
 
 def run_curriculum_learning_experiment():
@@ -146,20 +144,41 @@ def run_curriculum_learning_experiment():
 
 
 if __name__ == '__main__':
-    # start count
+    # start timer for entire experiment
     start = datetime.now()
-    # run all experiments
-    base_size_results = run_base_size_experiment()
-    hidden_layer_size_results = run_hidden_layer_size_experiment()
-    num_choices_results = run_num_choices_experiment()
-    training_size_results = run_training_size_experiment()
+    # define processing manager
+    manager = Manager()
+    # define shared variable to communicate
+    all_results = manager.dict()
+    # define a list to keep track of experiments
+    experiments = []
+    # experiment with base size parameter
+    base_size_process = Process(
+        target=run_base_size_experiment, args=(all_results,))
+    experiments.append(base_size_process)
+    base_size_process.start()
+    # experiment with hidden layer size parameter
+    hidden_layer_size_process = Process(
+        target=run_hidden_layer_size_experiment, args=(all_results,))
+    experiments.append(hidden_layer_size_process)
+    hidden_layer_size_process.start()
+    # experiment with num choices parameter
+    num_choices_process = Process(
+        target=run_num_choices_experiment, args=(all_results,))
+    experiments.append(num_choices_process)
+    num_choices_process.start()
+    # experiment with training data size parameters
+    training_data_size_process = Process(
+        target=run_training_data_size_experiment, args=(all_results,))
+    experiments.append(training_data_size_process)
+    training_data_size_process.start()
+    # re join spawned processes to get value
+    for experiment in experiments:
+        experiment.join()
     # show time
     print('-----------------------------')
     print('Time elapsed: {}'.format(datetime.now()-start))
     print('-----------------------------')
-    # aggregate all results in a dictionary
-    all_results = {'base_size': base_size_results, 'hidden_layer_size': hidden_layer_size_results,
-                   'num_choices': num_choices_results, 'training_size': training_size_results}
     # save dictionary to pickle file for easy visualization
     with open('all_results.pickle', 'wb') as f:
         pickle.dump(all_results, f)
