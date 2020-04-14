@@ -32,6 +32,7 @@ To run all the experiments and see the relationships between various parameters 
 ```
    python experiments.py
 ```
+the experiments.py file uses the python multiprocessing module to execute all experiments simultaneously and optimize the code runtime for CPUs.
 - to look at the results of the experiments in a Tkinter gui
 ```
    python visualize.py
